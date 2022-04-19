@@ -31,7 +31,7 @@ previous_result = ""
           previous_result = result[0].label;
 
        document.getElementById("result_object").innerHTML = result[0].label;   
-       document.getElementById("result_accracy").innerHTML = (result[0].confidence*100).toFixed(2);   
+       document.getElementById("result_accuracy").innerHTML = (result[0].confidence*100).toFixed(2);   
 
      }
    }
