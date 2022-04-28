@@ -1,40 +1,41 @@
-nose_x = "" ;
-nose_y = "" ;
+function setup() {
+  canvas = createCanvas(300, 300);
+  canvas.center();
+  video = createCapture(VIDEO);
+  video.hide();
+  classifier = ml5.imageClassifier('MobileNet' , modelLoaded);
+}
 
-left_wrist_x = "" ;
-right_wrist_x = "" ;
+ function modelLoaded() {
+   console.log("Model Loaded!");
+ }
 
-difference = "" ;
+ function draw() {
+   image(video,0,0,300,300);
+  classifier.classify(video,gotResult)
+ }
 
- function setup() {
-     canvas = createCanvas(400,400);
-     canvas.position(800,125);
-     video = createCapture(VIDEO);
-     video.size(400,400);
-     video.position(200,125);
-     poseNet=ml5.poseNet(video,modelLoaded);
-     poseNet.on("pose",gotPoses)
+previous_result = ""
+
+ function gotResult(error,result) {
+   if (error) {
+     console.error(error);
+   }
+   else{
+     if ((result[0].confidence>0.5)&&(previous_result!=result[0].label)) {
+       console.log(result);
+       var synth = window.speechSynthesis;
+           speak_data = "Object detected is "+result[0].label;
+           utter = new SpeechSynthesisUtterance(speak_data);
+          synth.speak(utter);
+          previous_result = result[0].label;
+
+       document.getElementById("result_object").innerHTML = result[0].label;   
+       document.getElementById("result_accuracy").innerHTML = (result[0].confidence*100).toFixed(2);   
+
      }
+   }
+ }
 
-     function draw() {
-        background("#4a875b");  
-        fill("#fa483e");
-        stroke("fa483e");
-        square(nose_x,nose_y,difference)
-     }
 
-     function modelLoaded() {
-         console.log("Model is Loaded");
-     }
 
-     function gotPoses(results) {
-         if (results.length>0) {
-             console.log(results);
-             nose_x = results[0].pose.nose.x;
-             nose_y = results[0].pose.nose.y;
-
-             left_wrist_x = results[0].pose.leftWrist.x;
-             right_wrist_x = results[0].pose.rightWrist.y;
-             difference = floor(left_wrist_x - right_wrist_x);
-         }
-     }
